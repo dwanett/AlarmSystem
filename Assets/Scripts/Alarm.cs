@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
@@ -29,21 +30,33 @@ public class Alarm : MonoBehaviour
         _audioSource.Play();
     }
 
-    private void Update()
-    {
-        if (isTriggerActive)
-            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _maxVolume, Time.deltaTime * _speedUpVolume);
-        else
-            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, 0, Time.deltaTime * _speedUpVolume);
-    }
-
     private void ActiveTrigger()
     {
         isTriggerActive = true;
+        StartCoroutine(UpVolumeSound());
     }
     
     private void DeactiveTrigger()
     {
         isTriggerActive = false;
+        StartCoroutine(DownVolumeSound());
+    }
+
+    private IEnumerator UpVolumeSound()
+    {
+        while (_audioSource.volume != _maxVolume && isTriggerActive)
+        {
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _maxVolume, Time.deltaTime * _speedUpVolume);
+            yield return null;
+        }
+    }
+    
+    private IEnumerator DownVolumeSound()
+    {
+        while (_audioSource.volume != 0 && isTriggerActive == false)
+        {
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, 0, Time.deltaTime * _speedUpVolume);
+            yield return null;
+        }
     }
 }
